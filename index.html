@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>Welcome</title>
+	<link rel="stylesheet" href="">
+	<style>
+	.view-play{
+		border: 1px solid black;
+		display: block;
+		margin-left: auto;
+		margin-right: auto;
+	}
+	.timer{
+		position: absolute;
+		top:0;
+		left:0;
+	}
+	</style>
+	<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous">
+  	</script>
+</head>
+<body>
+	<div class="timer">
+		<span class='seconds'>End Game In: </span><br>
+		<span class='number'>Game start in:</span><br>
+		<button class='btn btn-start'>Start</button>
+	</div>
+	<canvas class='view-play' width='500px' height='500px'>
+	</canvas>
+	<script>
+		$(document).ready(function(){
+			var canvas = $(".view-play");
+			var context = canvas[0].getContext('2d');
+			var newGame = new game(3, 10);
+
+			function game(live,times){
+				this.score = 0;
+				this.live = live;
+				this.times = times;
+				this.state = false;
+				this.cube;
+				this.countDown;
+				this.gameStart = function(){
+					this.state = true;
+					this.randomCube();
+					this.gameUpdate();
+					this.countDown = setInterval(function(){
+						$('.seconds').text("End Game In: " + newGame.times + "s");
+						if(!(newGame.times > 0)){
+							alert("Time's up");
+							newGame.gameStop();
+							clearInterval(newGame.countDown);
+						}
+						newGame.times--;
+					},1000);
+				};
+				this.randomCube = function(){
+					this.cube = new Cube();
+				}
+				this.gameStop = function(){
+					this.state = false;
+					clearInterval(this.countDown);
+					document.
+				};
+				this.gameUpdate = function(){
+					context.beginPath();
+					context.clearRect(0,0,canvas.width(), canvas.height());
+					context.rect(this.cube.x, this.cube.y, this.cube.width, this.cube.height);
+					context.font = "15px Arial";
+					context.fillStyle = 'green';
+					context.fillText("Score: "+this.score, 10, 20);
+					context.fillText("Live: "+this.live, canvas.width() - 50, 20);
+					context.fill();
+					context.closePath();
+				};
+				this.checkHit = function(x, y){
+					if(x>this.cube.x && x<(this.cube.x + this.cube.width)
+						&& y>this.cube.y && y<(this.cube.y + this.cube.height)){
+						return true;
+					}
+					return false;
+				}
+				
+			}
+			function Cube(){
+				this.x = Math.random() * (canvas.width() - 100);
+				this.y = Math.random() * (canvas.height() - 100);
+				do{
+					this.width = Math.random() * (canvas.width() - this.x);
+				}while(this.width < 50);
+				do{
+					this.height = Math.random() * (canvas.height() - this.y);
+				}while(this.height < 50);
+			}
+			$(".btn-start").on("click",function(){
+				var count = 3;
+				$('.btn-start').hide();
+				var start = setInterval(function(){
+					$('.number').text('Game start in: ' + count--);
+					if((count) < 0){
+						$('.number').hide();
+						newGame.gameStart();
+
+						clearInterval(start);
+					}
+				},1000)
+			});
+			canvas.on("click",function(e){
+				if(newGame.state){
+					if(newGame.checkHit(e.offsetX, e.offsetY)){
+						newGame.score++;
+						newGame.randomCube();
+					}else{
+						if(newGame.live > 0){
+							newGame.live--;
+						}else{
+							newGame.gameStop();
+							if(confirm("Game over \n Want try again?")){
+								document.location.reload();
+							}
+						}
+					}
+					newGame.gameUpdate();
+				}
+			});
+		});
+	</script>
+</body>
+</html>
